@@ -67,4 +67,27 @@ print(' ')
 print('  MODELS')
 print(' ')
 print('1) MODEL 1')
+# a) Create an object named as y which is storing the dataframe of a dependent variable names as 'sepallengthcm'
 y = df['SepalLengthCm']
+
+# b) Create an object named as x which is storing the dataframe of an independent variable names as 'sepalwidthcm'
+x = df['SepalWidthCm']
+
+# c) Divide the variables into x_train,x_test,y_train,y_test variables using train_test_split method carrying parameters named as x,y and test size should be 30%
+x_train, x_test, y_train, y_test = skl.model_selection.train_test_split(x,y,test_size=0.3,random_state=42)
+
+# d) Show first five records of all four variables / objects
+print(x_train.head(5),x_test.head(5),y_train.head(5),y_test.head(5))
+
+# e) Create an object named as lr and assign memory from linearregression() method.
+lr = skl.linear_model.linearregression()
+
+# f) Fit both training set into fit method
+xestimator = xestimator.fit(x_train)
+yestimator = yestimator.fit(y_train)
+
+# g) Predict x_test from predict method and store the result into y_pred obect
+# h) Show first five records from actual and predicted objects
+# i) Try to find out mean_squared_error in prediction using method after passing parameter as y_test and y_pred ,mind the result
+
+print('2) MODEL 2')
