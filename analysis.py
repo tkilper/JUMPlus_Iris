@@ -90,10 +90,12 @@ lr = linear_model.LinearRegression()
 lr.fit(x_train,y_train)
 
 # g) Predict x_test from predict method and store the result into y_pred obect
-y_pred = lr.predict(x_test)
+y_pred = lr.predict(x_test) 
+y_pred = pd.DataFrame(y_pred)
+print(y_pred)
 
 # h) Show first five records from actual and predicted objects
-print(y_test[0:5],y_pred[0:5])
+print(y_test.head(),y_pred.head())
 
 # i) Try to find out mean_squared_error in prediction using method after passing parameter as y_test and y_pred ,mind the result
 mse = mean_squared_error(y_test,y_pred)
@@ -104,9 +106,17 @@ print("Coefficients: \n", lr.coef_)
 print("Coefficient of determination: %.2f" % r2_score(y_test, y_pred))
 
 # graph of the result
-print(type(x_test))
-sns.scatterplot(x=x_test,y=y_test,color='blue').set(title='Linear Regression on SepalWidth vs SepalLength')
-sns.lineplot(x=x_test,y=y_pred,color='orange')
+x_test.columns = ['x_test']
+x_test = x_test.reset_index(drop=True)
+y_test.columns = ['y_test']
+y_test = y_test.reset_index(drop=True)
+y_pred.columns = ['y_pred']
+modeldata = pd.concat([x_test,y_test,y_pred], axis=1)
+print(modeldata.head())
+fig = plt.figure(figsize=(10,6))
+sns.scatterplot(data=modeldata,x='x_test',y='y_test',color='blue').set(title='Linear Regression on Iris Sepal Width vs Sepal Length',xlabel="Sepal Width (cm)",ylabel="Sepal Length (cm)")
+sns.lineplot(data=modeldata,x='x_test',y='y_pred',color='orange')
+fig.legend(labels=['Model 1 Prediction','Original Data'])
 plt.show()
 
 print('2) MODEL 2')
