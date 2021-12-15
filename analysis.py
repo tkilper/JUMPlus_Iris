@@ -22,7 +22,7 @@ print('--------------------------------------------------')
 df = pd.read_csv('C:/Users/Tristan Kilper/Desktop/JUMP/JUMPlus/Project3Iris/JUMPlus_Iris/Iris.csv')
 print('csv read!')
 print(' ')
-"""
+
 # 3) Show first records
 print('3) Show first records')
 print('--------------------------------------------------')
@@ -64,7 +64,7 @@ sns.scatterplot(data=df,x='SepalLengthCm',y='PetalLengthCm',hue='Species').set(t
 plt.show()
 print('scat_slvspl1.png')
 print(' ')
-"""
+
 
 print('  MODELS')
 print(' ')
