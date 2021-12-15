@@ -9,8 +9,8 @@ print(' ')
 print('1) Import required libraries')
 print('--------------------------------------------------')
 import pandas as pd
-from sklearn import linear_model, model_selection
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn import linear_model, model_selection, preprocessing, cluster
+from sklearn.metrics import mean_squared_error
 import seaborn as sns
 import matplotlib.pyplot as plt
 print('Python libraries pandas, sklearn, seaborn, and matplotlib imported to file!')
@@ -71,7 +71,7 @@ print(' ')
 print('1) MODEL 1')
 # a) Create an object named as y which is storing the dataframe of a dependent variable names as 'sepallengthcm'
 y = df[['SepalLengthCm']]
-"""
+
 # b) Create an object named as x which is storing the dataframe of an independent variable names as 'sepalwidthcm'
 x = df[['SepalWidthCm']]
 
@@ -106,13 +106,11 @@ y_test = y_test.reset_index(drop=True)
 y_pred.columns = ['y_pred']
 modeldata = pd.concat([x_test,y_test,y_pred], axis=1)
 fig = plt.figure(figsize=(10,6))
-sns.scatterplot(data=modeldata,x='x_test',y='y_test',color='blue').set(title='Linear Regression on Iris Sepal Width vs Sepal Length',xlabel="Sepal Width (cm)",ylabel="Sepal Length (cm)")
-sns.lineplot(data=modeldata,x='x_test',y='y_pred',color='orange')
+sns.scatterplot(data=modeldata,x='x_test',y='y_test',color='black').set(title='Linear Regression on Iris Sepal Width vs Sepal Length',xlabel="Sepal Width (cm)",ylabel="Sepal Length (cm)")
+sns.lineplot(data=modeldata,x='x_test',y='y_pred',color='red')
 fig.legend(labels=['Model 1 Prediction','Original Data'])
 plt.show()
-"""
 
-lr = linear_model.LinearRegression() # delete at the end
 
 print('2) MODEL 2')
 
@@ -120,11 +118,9 @@ print('2) MODEL 2')
 # Use from model 1
 # b) Store 'sepalwidthcm','petallengthcm','petalwidthcm' dataframe in x as an independent variables
 x2 = df[['SepalWidthCm','PetalLengthCm','PetalWidthCm']]
-print(x2)
 
 # c) Do train_test_split like you did in model 1 this time test_size is again 30%
 x_train2, x_test2, y_train2, y_test2 = model_selection.train_test_split(x2,y,test_size=0.3,random_state=43)
-print(x_train2)
 
 # d) Fit both train set into fit method of linearregression
 lr.fit(x_train2,y_train2)
@@ -138,18 +134,65 @@ mse = mean_squared_error(y_test2,y_pred2)
 print(f'The mean squared error is {mse}')
 
 # g) Describe which model is better and why?
-print('Model 2 is better because there are more features than in model 1. More features in a linear regression analysis makes for a more accurate prediction.')
+print('Model 2 is better because there are more features than in model 1. More features in a linear regression analysis makes for a more accurate prediction, which is demonstrated in its lower mean squared error by a factor of 10.')
 
-# graph of the results
-# graph of the result
-x_test2.columns = ['x_test2']
-x_test2 = x_test2.reset_index(drop=True)
-y_test2.columns = ['y_test2']
-y_test2 = y_test2.reset_index(drop=True)
-y_pred2.columns = ['y_pred2']
-modeldata = pd.concat([x_test2,y_test2,y_pred2], axis=1)
+
+# BONUS: Logistic Regression
+print('  BONUS: Logistic Regression')
+print('1) MODEL 1')
+
+# store logistic regression model in logr variable
+logr = linear_model.LogisticRegression()
+
+# find two centers using kmeans clustering to use as classifiers
+centers = cluster.KMeans(n_clusters=2).fit(y)
+
+# create the training and test datasets manually
+x_trainlog, x_testlog, y_trainlog, y_testlog = model_selection.train_test_split(x,centers.labels_,test_size=0.3,random_state=42)
+
+# train the model using the model 1 training datasets
+logr.fit(x_trainlog,y_trainlog)
+
+# calculate the logistic regression prediction using the test data
+y_predlog = logr.predict(x_testlog)
+
+# calculate the mean squared error
+mse = mean_squared_error(y_testlog,y_predlog)
+print(f'The mean squared error is {mse}')
+
+# graph the result
+x_testlog.columns = ['x_testlog']
+x_testlog = x_testlog.reset_index(drop=True)
+y_testlog = pd.DataFrame(y_testlog)
+y_testlog.columns = ['y_testlog']
+y_testlog = y_testlog.reset_index(drop=True)
+for i in range(len(y_predlog)):
+    if y_predlog[i] == 0:
+        y_predlog[i] = centers.cluster_centers_[0]
+    else:
+        y_predlog[i] = centers.cluster_centers_[1]
+y_predlog = pd.DataFrame(y_predlog)
+y_predlog.columns = ['y_predlog']
+modeldatalog = pd.concat([x_testlog,y_testlog,y_predlog], axis=1)
 fig = plt.figure(figsize=(10,6))
-sns.scatterplot(data=modeldata,x='x_test',y='y_test',color='blue').set(title='Linear Regression on Iris Sepal Width vs Sepal Length',xlabel="Sepal Width (cm)",ylabel="Sepal Length (cm)")
-sns.lineplot(data=modeldata,x='x_test',y='y_pred',color='orange')
-fig.legend(labels=['Model 2 Prediction','Original Data'])
+sns.scatterplot(data=modeldata,x='x_test',y='y_test',color='black').set(title='Logistic and Linear Regression on Iris Sepal Width vs Sepal Length',xlabel="Sepal Width (cm)",ylabel="Sepal Length (cm)")
+sns.lineplot(data=modeldatalog,x='x_testlog',y='y_predlog',color='blue')
+sns.lineplot(data=modeldata,x='x_test',y='y_pred',color='red')
+fig.legend(labels=['Linear Regression Prediction','Logistic Regression Prediction','Original Data'])
 plt.show()
+
+# Model 2
+print('2) MODEL 2')
+
+# create the training and test datasets
+x_trainlog2, x_testlog2, y_trainlog2, y_testlog2 = model_selection.train_test_split(x2,centers.labels_,test_size=0.3,random_state=44)
+
+# fit the training data to the logistic model
+logr.fit(x_trainlog2,y_trainlog2)
+
+# calculate the logistic regression prediction
+y_predlog2 = logr.predict(x_test2)
+
+# calculate the mean squared error
+mse = mean_squared_error(y_test,y_predlog)
+print(f'The mean squared error is {mse}')
